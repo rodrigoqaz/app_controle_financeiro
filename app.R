@@ -2,18 +2,23 @@
 
 
 #### 1. Carrega Pacotes Necessários ####
-list.of.packages <- c("shinydashboard", "shiny")
+list.of.packages <- c("shinydashboard", "shiny", "shinyjs")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only=TRUE)
 
 #Carrega fontes das comboboxes:
-cbtipo <- read.table(file = "fontes/cb_tipo.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE)
-cbconta <- read.table(file = "fontes/cb_conta.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE)
-cbgrupo <- read.table(file = "fontes/cb_grupo.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE)
-cbsubgrupo <- read.table(file = "fontes/cb_subgrupo.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE)
+cbtipo <- read.table(file = "fontes/cb_tipo.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE, encoding = "UTF-8")
+cbconta <- read.table(file = "fontes/cb_conta.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE, encoding = "UTF-8")
+cbgrupo <- read.table(file = "fontes/cb_grupo.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE, encoding = "UTF-8")
+cbsubgrupo <- read.table(file = "fontes/cb_subgrupo.csv", header = TRUE, sep = ";", blank.lines.skip = FALSE, encoding = "UTF-8")
 
 campos <- c("tipo", "conta", "grupo", "subgrupo", "data", "valor", "descricao")
+
+teste <- read.table(file = "dados/dados.csv", header = TRUE, sep = ";")
+teste$data <- as.Date(teste$data, origin = "1970-01-01")
+
+#Timestamp da inserção do registro
 epochTime <- function() {
   as.integer(Sys.time())
 }
@@ -46,6 +51,8 @@ ui <- dashboardPage(
       tabItem(tabName = "lancamento",
 
               fluidRow(
+                titlePanel("Formulário de Lançamento"),
+                useShinyjs(), #habilita o js
                 column(6,
                        div(
                          id = "form",
@@ -68,7 +75,7 @@ ui <- dashboardPage(
                          ),
                        
                        
-                       shinyjs::hidden(
+                       hidden(
                          div(
                            id = "thankyou_msg",
                            h3("Dados Importados com Sucesso"),
@@ -117,14 +124,8 @@ server <- function(input, output) {
     shinyjs::show("form")
     shinyjs::hide("thankyou_msg")
   }) 
+
   
-  set.seed(122)
-  histdata <- rnorm(500)
-  
-  output$plot1 <- renderPlot({
-    data <- histdata[seq_len(input$slider)]
-    hist(data)
-  })
 }
 
 shinyApp(ui, server)
