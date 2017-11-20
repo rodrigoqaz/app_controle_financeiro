@@ -2,7 +2,7 @@
 
 
 #### 1. Carrega Pacotes Necessários ####
-list.of.packages <- c("shinydashboard", "shiny", "shinyjs")
+list.of.packages <- c("shinydashboard", "shiny", "shinyjs", "ggplot2", "plotly")
 new.packages <- list.of.packages[!(list.of.packages %in% installed.packages()[,"Package"])]
 if(length(new.packages)) install.packages(new.packages)
 lapply(list.of.packages, require, character.only=TRUE)
@@ -17,6 +17,15 @@ campos <- c("tipo", "conta", "grupo", "subgrupo", "data", "valor", "descricao")
 
 teste <- read.table(file = "dados/dados.csv", header = TRUE, sep = ";")
 teste$data <- as.Date(teste$data, origin = "1970-01-01")
+max(teste$data)
+
+saldo <- sum(teste[teste$tipo=="Entrada" & teste$conta=="BB - Conta Corrente",]$valor) - 
+  sum(teste[teste$tipo=="Saída" & teste$conta=="BB - Conta Corrente",,]$valor)
+
+
+ggplot(teste, aes(x = grupo, y = valor)) + 
+  geom_bar(stat="identity")
+
 
 #Timestamp da inserção do registro
 epochTime <- function() {
